@@ -4,11 +4,21 @@
  */
 export const parseDataToJson = (data) =>
   data.map((vault) => {
-    const records = vault.records
-      .map((record) => ({
-        ...record,
-        vaultName: vault.name
-      }))
+    const records = (vault.records || [])
+      .map((record) => {
+        const data = record.data
+          ? Object.fromEntries(
+              Object.entries(record.data).filter(
+                ([key]) => key !== 'attachments'
+              )
+            )
+          : record.data
+        return {
+          ...record,
+          ...(record.data ? { data } : {}),
+          vaultName: vault.name
+        }
+      })
       .filter((r) => !!r.type)
 
     const json = JSON.stringify(records, null, 2)

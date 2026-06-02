@@ -135,4 +135,27 @@ describe('parseDataToJson', () => {
     expect(parsed[0].extraField).toBe('extra')
     expect(parsed[0].vaultName).toBe('TestVault')
   })
+
+  it('should exclude attachments from record data', () => {
+    const data = [
+      {
+        name: 'TestVault',
+        records: [
+          {
+            type: 'login',
+            data: {
+              title: 'My Login',
+              username: 'user1',
+              attachments: [{ id: 'abc', name: 'file.png' }]
+            }
+          }
+        ]
+      }
+    ]
+    const result = parseDataToJson(data)
+    const parsed = JSON.parse(result[0].data)
+    expect(parsed[0].data.title).toBe('My Login')
+    expect(parsed[0].data.username).toBe('user1')
+    expect(parsed[0].data.attachments).toBeUndefined()
+  })
 })

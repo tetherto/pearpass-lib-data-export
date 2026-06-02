@@ -11,7 +11,9 @@ export const parseDataToCsvText = (data) => {
       'password',
       'passwordUpdatedAt',
       'otpInput',
-      'websites'
+      'websites',
+      'passkeyCreatedAt',
+      'passkeyCredential'
     ],
     creditCard: ['name', 'number', 'expireDate', 'securityCode', 'pinCode'],
     identity: [
@@ -57,14 +59,24 @@ export const parseDataToCsvText = (data) => {
   ]
 
   data.forEach((vault) => {
-    const vaultRecords = vault.records
+    const vaultRecords = (vault.records || [])
       .map((record) => ({
         ...record,
         vaultName: vault.name
       }))
       .filter((r) => !!r.type)
 
-    if (!vaultRecords || vaultRecords.length === 0) {
+    if (vaultRecords.length === 0) {
+      const headers = [...alwaysFirst, ...alwaysLast]
+      const blankRow = headers.map((h) =>
+        h === 'vaultName' ? `"${vault.name}"` : '""'
+      )
+      const timestamp = new Date().toISOString().replace(/[:.-]/g, '_')
+      const safeVaultName = vault.name.replace(/[^a-z0-9]/gi, '_')
+      vaultsToExport.push({
+        filename: `PearPass_${safeVaultName}_${timestamp}.csv`,
+        data: [headers.join(','), blankRow.join(',')].join('\n')
+      })
       return
     }
 
@@ -100,6 +112,10 @@ export const parseDataToCsvText = (data) => {
         passwordUpdatedAt: data.passwordUpdatedAt || '',
         otpInput: data.otpInput || '',
         websites: (data.websites || []).join(';'),
+        passkeyCreatedAt: data.passkeyCreatedAt || '',
+        passkeyCredential: data.credential
+          ? JSON.stringify(data.credential)
+          : '',
 
         name: data.name || '',
         number: data.number || '',
