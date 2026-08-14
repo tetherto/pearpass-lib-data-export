@@ -1,3 +1,6 @@
+> [!WARNING]
+> 🍐 PearPass is currently paused from active development, so please use at your own caution until further notice.
+
 # pearpass-lib-data-export
 
 A utility for exporting PearPass vaults to various formats.
